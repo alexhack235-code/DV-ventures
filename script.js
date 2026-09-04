@@ -246,10 +246,10 @@ function applyTheme(theme) {
 
 function detectAndroidViewport() {
   const ua = navigator.userAgent || navigator.vendor || window.opera || '';
-  if (/Android/i.test(ua)) {
-    document.documentElement.classList.add('android-device');
-    document.body.classList.add('android-device');
-  }
+  const isAndroid = /Android/i.test(ua);
+  document.documentElement.classList.toggle('android-device', isAndroid);
+  document.body.classList.toggle('android-device', isAndroid);
+  document.documentElement.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom, 0px)');
 }
 
 const savedTheme = localStorage.getItem('dv-theme') || 'light';

@@ -131,6 +131,35 @@ body {
   padding-right: 0;
 }
 
+.android-device body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.android-device .topbar-inner {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.android-device .header-actions {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.android-device .search-wrap {
+  width: 100%;
+  order: 3;
+}
+
+.android-device .hero-actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.android-device .hero-actions .button {
+  width: 100%;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -1719,6 +1748,165 @@ body.theme-dark .pricing-badge-popular {
 }
 
 /* ==========================================================================
+   PREMIUM BRAND / FAQ SECTION
+   ========================================================================== */
+
+.brand-pro-section {
+  margin-top: 90px;
+}
+
+.stats-band {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px 18px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-item strong {
+  display: block;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.stat-item span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.brand-story-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  gap: 18px;
+}
+
+.story-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: 26px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.story-card-featured {
+  background: linear-gradient(180deg, var(--accent-soft) 0%, var(--card) 100%);
+  border-color: var(--accent);
+}
+
+.story-card h2 {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  margin: 12px 0 18px;
+}
+
+.story-card p {
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.story-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.story-list li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.story-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+
+.mini-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.story-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.faq-section {
+  margin-top: 90px;
+}
+
+.faq-list {
+  display: grid;
+  gap: 16px;
+}
+
+.faq-list details {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.faq-list summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.faq-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-list summary::after {
+  content: '+';
+  font-size: 1.3rem;
+  color: var(--accent);
+}
+
+.faq-list details[open] summary::after {
+  content: '−';
+}
+
+.faq-list p {
+  color: var(--text-muted);
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
    FOOTER
    ========================================================================== */
 
@@ -3141,9 +3329,11 @@ body.theme-dark .mobile-bottom-bar {
   }
   .mobile-bottom-bar {
     display: block;
+    height: calc(64px + var(--safe-bottom, 0px));
+    padding-bottom: var(--safe-bottom, 0px);
   }
   body {
-    padding-bottom: 70px;
+    padding-bottom: calc(70px + var(--safe-bottom, 0px));
   }
   .chat-widget {
     bottom: 80px;
@@ -3156,4 +3346,17 @@ body.theme-dark .mobile-bottom-bar {
   .footer-top {
     grid-template-columns: 1fr;
   }
+}
+
+.android-device .mobile-bottom-bar {
+  height: calc(64px + var(--safe-bottom, 0px));
+  padding-bottom: var(--safe-bottom, 0px);
+}
+
+.android-device .chat-widget {
+  bottom: calc(84px + var(--safe-bottom, 0px));
+}
+
+.android-device .toast-container {
+  bottom: calc(84px + var(--safe-bottom, 0px));
 }
