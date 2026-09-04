@@ -120,44 +120,13 @@ body {
   overflow-x: hidden;
 }
 
-.android-device .container {
-  width: min(100%, 430px);
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-.android-device .page-shell {
-  padding-left: 0;
-  padding-right: 0;
+.android-device {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .android-device body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-}
-
-.android-device .topbar-inner {
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.android-device .header-actions {
-  width: 100%;
-  justify-content: space-between;
-}
-
-.android-device .search-wrap {
-  width: 100%;
-  order: 3;
-}
-
-.android-device .hero-actions {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.android-device .hero-actions .button {
-  width: 100%;
 }
 
 img {
@@ -698,10 +667,10 @@ body.theme-dark .button-primary:hover {
 
 .hero-copy h1 {
   font-family: "Manrope", "Inter", sans-serif;
-  font-size: clamp(2.8rem, 4.8vw, 4.4rem);
-  line-height: 1.05;
+  font-size: clamp(2.4rem, 6vw, 5.2rem);
+  line-height: 1.0;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
   color: var(--text);
 }
 
@@ -1201,8 +1170,8 @@ body.theme-dark .category-chip.active .category-count {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: clamp(14px, 2.5vw, 24px);
 }
 
 .product-card {
@@ -1218,9 +1187,14 @@ body.theme-dark .category-chip.active .category-count {
 }
 
 .product-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-10px) scale(1.01);
   box-shadow: var(--shadow-lg);
   border-color: var(--line-strong);
+}
+
+body.theme-dark .product-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), 0 0 0 1px var(--accent), 0 0 28px var(--accent-glow);
 }
 
 /* Image Container & Quick Actions */
@@ -1471,9 +1445,9 @@ body.theme-dark .add-cart-btn {
 }
 
 .add-cart-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-  box-shadow: 0 4px 12px var(--accent-glow);
+  transform: translateY(-3px) scale(1.03);
+  filter: brightness(1.12);
+  box-shadow: 0 6px 20px var(--accent-glow), 0 0 0 3px var(--accent-soft);
 }
 
 .add-cart-btn svg {
@@ -3241,6 +3215,10 @@ body.theme-dark .mobile-bottom-bar {
   font-weight: 700;
   color: var(--text-muted);
   position: relative;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  touch-action: manipulation;
 }
 
 .mobile-bar-btn.active,
@@ -3254,13 +3232,16 @@ body.theme-dark .mobile-bottom-bar {
 }
 
 /* ==========================================================================
-   RESPONSIVE MEDIA QUERIES
+   RESPONSIVE MEDIA QUERIES — FLUID & SMOOTH (NO MORE STIFF ANDROID!)
    ========================================================================== */
 
+/* Container fluid edge-to-edge on small screens */
+.container {
+  width: min(1240px, calc(100% - clamp(16px, 4vw, 40px)));
+  margin: 0 auto;
+}
+
 @media (max-width: 1100px) {
-  .product-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
   .pricing-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -3270,19 +3251,25 @@ body.theme-dark .mobile-bottom-bar {
   .footer-top {
     grid-template-columns: 1fr 1fr;
   }
+  .hero-banner {
+    gap: 28px;
+  }
 }
 
 @media (max-width: 860px) {
   .hero-banner {
     grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 30px 0 20px;
+    gap: clamp(20px, 5vw, 36px);
+    padding: clamp(24px, 5vw, 40px) 0 clamp(16px, 3vw, 24px);
+  }
+  .hero-spotlight {
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
   }
   .promo-strip {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
   .quickview-modal {
     grid-template-columns: 1fr;
@@ -3300,7 +3287,20 @@ body.theme-dark .mobile-bottom-bar {
     grid-template-columns: 1fr;
   }
   .testimonials-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 16px;
+  }
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .pricing-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  }
+  .footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
   }
 }
 
@@ -3312,13 +3312,22 @@ body.theme-dark .mobile-bottom-bar {
     display: none;
   }
   .container {
-    width: min(100% - 18px, 100%);
+    width: calc(100% - 24px);
+  }
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+  }
+  .hero-copy p {
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+  }
+  .hero-banner {
+    padding: 20px 0 12px;
   }
   .promo-strip {
     grid-template-columns: 1fr;
-  }
-  .product-grid {
-    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px;
+    margin-top: 24px;
   }
   .pricing-grid {
     grid-template-columns: 1fr;
@@ -3326,37 +3335,710 @@ body.theme-dark .mobile-bottom-bar {
   .total-box {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
   }
   .mobile-bottom-bar {
     display: block;
-    height: calc(64px + var(--safe-bottom, 0px));
-    padding-bottom: var(--safe-bottom, 0px);
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   body {
-    padding-bottom: calc(70px + var(--safe-bottom, 0px));
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
   .chat-widget {
-    bottom: 80px;
-    right: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 14px;
   }
   .toast-container {
-    bottom: 80px;
-    left: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    left: 14px;
+    right: 14px;
+    max-width: 100%;
   }
   .footer-top {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .catalog-toolbar {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+  .toolbar-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .sort-and-meta {
+    margin-left: 0;
+  }
+  .topbar-inner {
+    padding: 10px 0;
+    gap: 10px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-actions .button {
+    width: 100%;
+  }
+  /* Quickview full-screen on mobile */
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .quickview-modal {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 90svh;
+  }
+  /* Cart panel full-width */
+  .cart-panel {
+    width: 100%;
+  }
+  /* Checkout card edge-to-edge */
+  .checkout-modal-card {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: 24px 20px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  /* Admin */
+  .admin-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .brand-story-grid {
+    grid-template-columns: 1fr;
+  }
+  .stats-band {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Android-specific safe-area and touch improvements */
 .android-device .mobile-bottom-bar {
-  height: calc(64px + var(--safe-bottom, 0px));
-  padding-bottom: var(--safe-bottom, 0px);
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .android-device .chat-widget {
-  bottom: calc(84px + var(--safe-bottom, 0px));
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 .android-device .toast-container {
-  bottom: calc(84px + var(--safe-bottom, 0px));
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+
+.android-device .topbar-inner {
+  gap: 8px;
+}
+
+/* Scrollable containers — fluid on Android */
+.cart-items,
+.chat-body,
+.quickview-modal,
+.checkout-modal-card {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* All interactive tap targets — minimum 44px (Android HIG) */
+button,
+.category-chip,
+.price-chip,
+.size-btn,
+.quick-action-btn,
+.mobile-bar-btn,
+.icon-btn,
+.cart-pill-btn,
+.add-cart-btn,
+.chat-quick-actions button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.category-chip,
+.price-chip {
+  min-height: 38px;
+}
+
+/* ==========================================================================
+   WOW FACTOR — KEYFRAME ANIMATIONS
+   ========================================================================== */
+
+/* Floating orb drift for hero background */
+@keyframes orbDrift1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(40px, -60px) scale(1.15); }
+  66%  { transform: translate(-30px, 30px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes orbDrift2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(-50px, 40px) scale(1.2); }
+  80%  { transform: translate(20px, -20px) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes orbDrift3 {
+  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50%  { transform: translate(30px, 50px) scale(1.1) rotate(180deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+}
+
+/* Shimmer sweep for spotlight card border */
+@keyframes shimmerBorder {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Card cascade reveal on scroll */
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Promo item slide-in */
+@keyframes promoSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pricing card stagger-in */
+@keyframes pricingFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Marquee announcement pulse */
+@keyframes marqueeSlide {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Floating product card micro-animation on hover */
+@keyframes floatCard {
+  0%, 100% { transform: translateY(-10px) scale(1.01); }
+  50%       { transform: translateY(-14px) scale(1.015); }
+}
+
+/* Gold shimmer sweep on text */
+@keyframes goldShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Neon pulse ring on dark mode buttons */
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50%       { box-shadow: 0 0 0 8px rgba(45, 224, 138, 0); }
+}
+
+/* Rotating conic gradient border for spotlight */
+@keyframes rotateBorder {
+  from { --angle: 0deg; }
+  to   { --angle: 360deg; }
+}
+
+/* ==========================================================================
+   WOW FACTOR — HERO ANIMATED ORB BACKGROUND
+   ========================================================================== */
+
+.hero-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+/* Orb 1 — large emerald blob */
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  width: clamp(300px, 50vw, 620px);
+  height: clamp(300px, 50vw, 620px);
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  top: -20%;
+  right: -10%;
+  border-radius: 50%;
+  filter: blur(clamp(40px, 8vw, 80px));
+  z-index: -1;
+  animation: orbDrift1 14s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Orb 2 — warm gold blob */
+.hero-banner::after {
+  content: "";
+  position: absolute;
+  width: clamp(200px, 35vw, 480px);
+  height: clamp(200px, 35vw, 480px);
+  background: radial-gradient(circle, var(--gold-soft) 0%, transparent 70%);
+  bottom: -10%;
+  left: -5%;
+  border-radius: 50%;
+  filter: blur(clamp(30px, 6vw, 60px));
+  z-index: -1;
+  animation: orbDrift2 18s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Third orb via body pseudo */
+.page-shell::before {
+  content: "";
+  position: absolute;
+  width: clamp(150px, 25vw, 360px);
+  height: clamp(150px, 25vw, 360px);
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  top: 30%;
+  left: 40%;
+  border-radius: 50%;
+  filter: blur(clamp(50px, 10vw, 100px));
+  z-index: 0;
+  animation: orbDrift3 22s linear infinite;
+  pointer-events: none;
+}
+
+.page-shell {
+  position: relative;
+}
+
+/* ==========================================================================
+   WOW FACTOR — HERO TYPOGRAPHY EFFECTS
+   ========================================================================== */
+
+/* Animated shimmer on highlight span */
+.hero-copy h1 .highlight {
+  background: linear-gradient(
+    120deg,
+    var(--accent) 0%,
+    var(--gold) 30%,
+    var(--accent-light) 50%,
+    var(--gold-light) 70%,
+    var(--accent) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: goldShimmer 4s linear infinite;
+}
+
+body.theme-dark .hero-copy h1 .highlight {
+  background: linear-gradient(
+    120deg,
+    var(--accent) 0%,
+    var(--gold-light) 30%,
+    var(--accent-light) 50%,
+    var(--gold) 70%,
+    var(--accent) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: goldShimmer 4s linear infinite;
+}
+
+/* ==========================================================================
+   WOW FACTOR — SPOTLIGHT CARD SHIMMER BORDER
+   ========================================================================== */
+
+.spotlight-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 460px);
+  padding: 24px;
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(12px);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  /* Animated conic gradient border */
+  border: none;
+  background-clip: padding-box;
+}
+
+/* Shimmer border using ::before pseudo wrapper */
+.spotlight-card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-xl) + 2px);
+  background: linear-gradient(
+    var(--angle, 0deg),
+    var(--gold) 0%,
+    var(--accent) 25%,
+    transparent 50%,
+    var(--accent-light) 75%,
+    var(--gold-light) 100%
+  );
+  background-size: 300% 300%;
+  z-index: -1;
+  animation: shimmerBorder 4s linear infinite;
+  opacity: 0.7;
+}
+
+body.theme-dark .spotlight-card::after {
+  opacity: 1;
+  background: linear-gradient(
+    var(--angle, 0deg),
+    var(--accent) 0%,
+    var(--gold) 25%,
+    transparent 50%,
+    var(--accent-light) 75%,
+    var(--accent) 100%
+  );
+  background-size: 300% 300%;
+}
+
+.spotlight-card:hover {
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 40px 80px -20px rgba(15, 57, 40, 0.25), var(--shadow-glow);
+}
+
+body.theme-dark .spotlight-card:hover {
+  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 40px var(--accent-glow);
+}
+
+/* ==========================================================================
+   WOW FACTOR — PRODUCT CARD CONTINUOUS FLOAT ON HOVER
+   ========================================================================== */
+
+.product-card:hover {
+  animation: floatCard 2.5s ease-in-out infinite;
+}
+
+/* Image shimmer gloss overlay on hover */
+.product-image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0) 40%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0) 60%
+  );
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.product-card:hover .product-image-wrap::after {
+  opacity: 1;
+  animation: goldShimmer 1.5s linear infinite;
+}
+
+/* ==========================================================================
+   WOW FACTOR — ANNOUNCEMENT BAR MARQUEE SCROLL
+   ========================================================================== */
+
+.announcement-inner {
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==========================================================================
+   WOW FACTOR — PROMO STRIP ANIMATED ENTRY (JS adds .visible)
+   ========================================================================== */
+
+.promo-item {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.promo-item.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.promo-item:nth-child(1) { transition-delay: 0.0s; }
+.promo-item:nth-child(2) { transition-delay: 0.12s; }
+.promo-item:nth-child(3) { transition-delay: 0.24s; }
+.promo-item:nth-child(4) { transition-delay: 0.36s; }
+
+/* ==========================================================================
+   WOW FACTOR — PRODUCT CARD STAGGERED SCROLL REVEAL
+   ========================================================================== */
+
+.product-card {
+  opacity: 0;
+  transform: translateY(32px) scale(0.97);
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow var(--transition-smooth),
+    border-color var(--transition-smooth);
+}
+
+.product-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.product-card:nth-child(1)  { transition-delay: 0.00s; }
+.product-card:nth-child(2)  { transition-delay: 0.06s; }
+.product-card:nth-child(3)  { transition-delay: 0.12s; }
+.product-card:nth-child(4)  { transition-delay: 0.18s; }
+.product-card:nth-child(5)  { transition-delay: 0.24s; }
+.product-card:nth-child(6)  { transition-delay: 0.06s; }
+.product-card:nth-child(7)  { transition-delay: 0.12s; }
+.product-card:nth-child(8)  { transition-delay: 0.18s; }
+.product-card:nth-child(n+9) { transition-delay: 0.08s; }
+
+/* Override: when card is visible AND hovered, allow float animation */
+.product-card.visible:hover {
+  animation: floatCard 2.5s ease-in-out infinite;
+  opacity: 1;
+  transform: none; /* let animation control it */
+}
+
+/* ==========================================================================
+   WOW FACTOR — PRICING CARDS STAGGERED REVEAL
+   ========================================================================== */
+
+.pricing-card {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.5s ease, transform 0.5s ease, box-shadow var(--transition-smooth);
+}
+
+.pricing-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pricing-card:nth-child(1) { transition-delay: 0.0s; }
+.pricing-card:nth-child(2) { transition-delay: 0.1s; }
+.pricing-card:nth-child(3) { transition-delay: 0.2s; }
+.pricing-card:nth-child(4) { transition-delay: 0.3s; }
+
+.pricing-card.visible:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* ==========================================================================
+   WOW FACTOR — TESTIMONIAL CARDS REVEAL
+   ========================================================================== */
+
+.testimonial-card {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.testimonial-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.testimonial-card:nth-child(1) { transition-delay: 0.0s; }
+.testimonial-card:nth-child(2) { transition-delay: 0.12s; }
+.testimonial-card:nth-child(3) { transition-delay: 0.24s; }
+
+.testimonial-card.visible:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ==========================================================================
+   WOW FACTOR — SECTION HEADS REVEAL
+   ========================================================================== */
+
+.section-head {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section-head.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   WOW FACTOR — DARK MODE NEON GLOW CATEGORY CHIPS
+   ========================================================================== */
+
+body.theme-dark .category-chip.active {
+  background: var(--accent);
+  color: #090c0f;
+  box-shadow: 0 4px 12px var(--accent-glow), 0 0 20px var(--accent-glow);
+  animation: neonPulse 2.5s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   WOW FACTOR — BODY BACKGROUND ANIMATED MESH (DARK MODE)
+   ========================================================================== */
+
+body.theme-dark {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(45, 224, 138, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 60%, rgba(223, 181, 108, 0.05), transparent),
+    radial-gradient(ellipse 40% 60% at 0% 80%, rgba(45, 224, 138, 0.04), transparent);
+}
+
+/* ==========================================================================
+   WOW FACTOR — BRAND MARK SHIMMER PULSE
+   ========================================================================== */
+
+.brand-mark {
+  animation: neonPulse 3s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   WOW FACTOR — STAT ITEMS COUNT-UP STYLING
+   ========================================================================== */
+
+.stat-item {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.stat-item.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.stat-item:nth-child(1) { transition-delay: 0.0s; }
+.stat-item:nth-child(2) { transition-delay: 0.1s; }
+.stat-item:nth-child(3) { transition-delay: 0.2s; }
+.stat-item:nth-child(4) { transition-delay: 0.3s; }
+
+/* ==========================================================================
+   WOW FACTOR — HERO COPY ENTRANCE ANIMATION
+   ========================================================================== */
+
+.hero-copy {
+  animation: cardReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-spotlight {
+  animation: cardReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.eyebrow {
+  animation: promoSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+/* ==========================================================================
+   WOW FACTOR — TRUST STRIP FLOATING AVATARS
+   ========================================================================== */
+
+.trust-avatar {
+  transition: transform 0.25s ease;
+}
+
+.trust-item:hover .trust-avatar:nth-child(1) { transform: translateY(-3px) rotate(-5deg); }
+.trust-item:hover .trust-avatar:nth-child(2) { transform: translateY(-5px); }
+.trust-item:hover .trust-avatar:nth-child(3) { transform: translateY(-3px) rotate(5deg); }
+
+/* ==========================================================================
+   WOW FACTOR — PROMO ICON WRAP HOVER SPIN
+   ========================================================================== */
+
+.promo-icon-wrap {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background var(--transition-fast);
+}
+
+.promo-item:hover .promo-icon-wrap {
+  transform: rotate(15deg) scale(1.15);
+  background: var(--accent-glow);
+}
+
+/* ==========================================================================
+   WOW FACTOR — CHAT TOGGLE NEON GLOW (DARK MODE)
+   ========================================================================== */
+
+body.theme-dark .chat-toggle {
+  box-shadow: 0 8px 24px -4px rgba(45, 224, 138, 0.4), 0 0 30px rgba(45, 224, 138, 0.15);
+}
+
+body.theme-dark .chat-toggle:hover {
+  box-shadow: 0 14px 36px -4px rgba(45, 224, 138, 0.6), 0 0 50px rgba(45, 224, 138, 0.3);
+}
+
+/* ==========================================================================
+   WOW FACTOR — BUTTON RIPPLE GLOW (DARK MODE)
+   ========================================================================== */
+
+body.theme-dark .button-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+body.theme-dark .button-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   WOW FACTOR — SMOOTH SCROLL BEHAVIOR & OVERSCROLL
+   ========================================================================== */
+
+.catalog-section,
+.pricing-section,
+.testimonials-section,
+.faq-section {
+  scroll-margin-top: 80px;
+}
+
+.cart-panel,
+.cart-items,
+.quickview-modal,
+.chat-body {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* ==========================================================================
+   WOW FACTOR — PRICE HIGHLIGHT ON PRODUCT CARD
+   ========================================================================== */
+
+body.theme-dark .current-price {
+  background: linear-gradient(90deg, var(--accent), var(--gold-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ==========================================================================
+   WOW FACTOR — HERO BACKDROP GRID PATTERN (LIGHT MODE)
+   ========================================================================== */
+
+body.theme-light .hero-banner {
+  background-image:
+    radial-gradient(rgba(15,57,40,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0;
 }

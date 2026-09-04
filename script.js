@@ -232,24 +232,38 @@ function showToast(message, iconSvg = null) {
 // ==========================================================================
 
 function applyTheme(theme) {
+  if (typeof document === 'undefined') return;
   const isDark = theme === 'dark';
-  document.body.classList.toggle('theme-dark', isDark);
-  document.body.classList.toggle('theme-light', !isDark);
-  localStorage.setItem('dv-theme', theme);
+  if (document.body && document.body.classList) {
+    document.body.classList.toggle('theme-dark', isDark);
+    document.body.classList.toggle('theme-light', !isDark);
+  }
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('dv-theme', theme);
+  }
 
-  document.querySelectorAll('#themeToggle').forEach((btn) => {
-    btn.innerHTML = isDark
-      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`
-      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
-  });
+  if (typeof document.querySelectorAll === 'function') {
+    document.querySelectorAll('#themeToggle').forEach((btn) => {
+      btn.innerHTML = isDark
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+    });
+  }
 }
 
 function detectAndroidViewport() {
+  if (typeof navigator === 'undefined' || typeof document === 'undefined') return;
   const ua = navigator.userAgent || navigator.vendor || window.opera || '';
   const isAndroid = /Android/i.test(ua);
-  document.documentElement.classList.toggle('android-device', isAndroid);
-  document.body.classList.toggle('android-device', isAndroid);
-  document.documentElement.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom, 0px)');
+  if (document.documentElement && document.documentElement.classList) {
+    document.documentElement.classList.toggle('android-device', isAndroid);
+    if (document.documentElement.style) {
+      document.documentElement.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom, 0px)');
+    }
+  }
+  if (document.body && document.body.classList) {
+    document.body.classList.toggle('android-device', isAndroid);
+  }
 }
 
 const savedTheme = localStorage.getItem('dv-theme') || 'light';
@@ -788,6 +802,33 @@ function renderProducts() {
       openQuickView(Number(btn.dataset.quickviewId));
     });
   });
+
+  // Trigger wow-factor scroll reveals
+  initScrollReveals();
+}
+
+function initScrollReveals() {
+  const elements = document.querySelectorAll('.product-card:not(.visible), .promo-item:not(.visible), .pricing-card:not(.visible), .testimonial-card:not(.visible), .section-head:not(.visible), .stat-item:not(.visible)');
+  if (!elements.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    elements.forEach((el) => el.classList.add('visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.08,
+    rootMargin: '0px 0px -20px 0px'
+  });
+
+  elements.forEach((el) => observer.observe(el));
 }
 
 function resetFilters() {
@@ -1214,6 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProducts();
   renderCart();
   updateWishlistUI();
+  initScrollReveals();
 
   // 2. Navbar Scroll Shadow
   const header = document.getElementById('siteHeader');
