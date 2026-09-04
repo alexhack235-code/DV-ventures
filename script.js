@@ -244,7 +244,16 @@ function applyTheme(theme) {
   });
 }
 
+function detectAndroidViewport() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+  if (/Android/i.test(ua)) {
+    document.documentElement.classList.add('android-device');
+    document.body.classList.add('android-device');
+  }
+}
+
 const savedTheme = localStorage.getItem('dv-theme') || 'light';
+detectAndroidViewport();
 applyTheme(savedTheme);
 
 document.querySelectorAll('#themeToggle').forEach((btn) => {
