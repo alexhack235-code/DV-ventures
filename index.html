@@ -105,6 +105,48 @@
       </div>
     </header>
 
+    <!-- Search Scrim Backdrop (Amazon-Style Focus Dimming) -->
+    <div class="search-scrim" id="searchScrim" aria-hidden="true"></div>
+
+    <!-- Secondary Sub-Navbar (Amazon-Style Layered Bar) -->
+    <nav class="subnav-bar" id="subNavBar" aria-label="Quick category and location bar">
+      <div class="container subnav-inner">
+        <!-- Delivery Location Selector Pill -->
+        <button id="deliveryLocationBtn" class="delivery-location-pill" type="button" aria-label="Change delivery location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <div class="delivery-text-wrap">
+            <span class="delivery-label">Deliver to</span>
+            <strong id="activeDeliveryState" class="delivery-state">Lagos ▾</strong>
+          </div>
+        </button>
+
+        <!-- Subnav Shortcut Links -->
+        <div class="subnav-links" role="menubar">
+          <button class="subnav-all-btn" type="button" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span>All Shoes</span>
+          </button>
+          <a href="#trendingSection">Trending Deals</a>
+          <a href="#products" onclick="setCategoryFilter('Running')">Running</a>
+          <a href="#products" onclick="setCategoryFilter('Sneakers')">Sneakers</a>
+          <a href="#products" onclick="setCategoryFilter('Lifestyle')">Lifestyle</a>
+          <a href="#products" onclick="setCategoryFilter('Sandals')">Slides</a>
+          <a href="#products" onclick="setPriceFilter('under-25k')">Under ₦25,000</a>
+          <a href="#pricing">Bulk Orders</a>
+          <a href="https://wa.me/2348000000000?text=Hi%20DV%20Ventures,%20I%20need%20help%20with%20an%20order" target="_blank" rel="noopener">Customer Service</a>
+        </div>
+
+        <!-- DV Express Prime-Style Tag -->
+        <div class="subnav-deal-tag">
+          <span class="express-bolt">⚡</span>
+          <span><strong>DV Express:</strong> Free nationwide delivery on orders over ₦50,000</span>
+        </div>
+      </div>
+    </nav>
+
     <main class="page-shell container">
       <!-- HERO SHOWCASE -->
       <section class="hero-banner" aria-label="Hero Introduction">
@@ -190,6 +232,197 @@
               </button>
             </div>
           </article>
+        </div>
+      </section>
+
+      <!-- AMAZON-STYLE HERO OVERLAP QUAD CARDS (Signature Layered Depth) -->
+      <section class="hero-overlap-grid" aria-label="Featured product categories and deals">
+        <!-- Quad Card 1: Shop by Category -->
+        <article class="feature-quad-card">
+          <h3 class="quad-card-title">Shop by Category</h3>
+          <div class="quad-grid">
+            <div class="quad-item" onclick="setCategoryFilter('Running')" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.44.jpeg" alt="Running shoes" loading="lazy" />
+              </div>
+              <span class="quad-label">Running</span>
+            </div>
+            <div class="quad-item" onclick="setCategoryFilter('Lifestyle')" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.45.jpeg" alt="Lifestyle shoes" loading="lazy" />
+              </div>
+              <span class="quad-label">Lifestyle</span>
+            </div>
+            <div class="quad-item" onclick="setCategoryFilter('Sneakers')" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.45 (1).jpeg" alt="Sneakers" loading="lazy" />
+              </div>
+              <span class="quad-label">Sneakers</span>
+            </div>
+            <div class="quad-item" onclick="setCategoryFilter('Sandals')" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.58.jpeg" alt="Slides and Sandals" loading="lazy" />
+              </div>
+              <span class="quad-label">Slides</span>
+            </div>
+          </div>
+          <a href="#products" class="quad-footer-link" onclick="setCategoryFilter('all')">
+            <span>Explore all categories</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </article>
+
+        <!-- Quad Card 2: Budget-Friendly Value Picks -->
+        <article class="feature-quad-card">
+          <div class="quad-title-row">
+            <h3 class="quad-card-title">Picks Under ₦25,000</h3>
+            <span class="quad-badge">Save big</span>
+          </div>
+          <div class="quad-grid">
+            <div class="quad-item" onclick="openQuickView(1)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.44.jpeg" alt="Silver Ridge Runner" loading="lazy" />
+                <span class="quad-price-pill">₦24,500</span>
+              </div>
+              <span class="quad-label">Silver Ridge</span>
+            </div>
+            <div class="quad-item" onclick="openQuickView(5)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.58.jpeg" alt="Coastline Slide" loading="lazy" />
+                <span class="quad-price-pill">₦16,500</span>
+              </div>
+              <span class="quad-label">Coastline</span>
+            </div>
+            <div class="quad-item" onclick="openQuickView(7)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.58 (1).jpeg" alt="Dune Stride Slide" loading="lazy" />
+                <span class="quad-price-pill">₦19,000</span>
+              </div>
+              <span class="quad-label">Dune Stride</span>
+            </div>
+            <div class="quad-item" onclick="openQuickView(9)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.59 (1).jpeg" alt="Horizon Pace Trainer" loading="lazy" />
+                <span class="quad-price-pill">₦24,000</span>
+              </div>
+              <span class="quad-label">Horizon Pace</span>
+            </div>
+          </div>
+          <a href="#products" class="quad-footer-link" onclick="setPriceFilter('under-25k')">
+            <span>Shop budget deals under ₦25k</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </article>
+
+        <!-- Quad Card 3: Top Rated Customer Choice -->
+        <article class="feature-quad-card">
+          <div class="quad-title-row">
+            <h3 class="quad-card-title">4.9★ Customer Choice</h3>
+            <span class="quad-badge-gold">Top Rated</span>
+          </div>
+          <div class="quad-grid">
+            <div class="quad-item" onclick="openQuickView(2)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.45.jpeg" alt="Urban Drift X" loading="lazy" />
+                <span class="quad-rating-pill">★ 4.9</span>
+              </div>
+              <span class="quad-label">Urban Drift X</span>
+            </div>
+            <div class="quad-item" onclick="openQuickView(3)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.45 (1).jpeg" alt="Summit Flex" loading="lazy" />
+                <span class="quad-rating-pill">★ 4.9</span>
+              </div>
+              <span class="quad-label">Summit Flex</span>
+            </div>
+            <div class="quad-item" onclick="openQuickView(4)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.45 (2).jpeg" alt="Aero Step Pro" loading="lazy" />
+                <span class="quad-rating-pill">★ 4.9</span>
+              </div>
+              <span class="quad-label">Aero Step</span>
+            </div>
+            <div class="quad-item" onclick="openQuickView(12)" role="button" tabindex="0">
+              <div class="quad-img-wrap">
+                <img src="./WhatsApp Image 2026-09-04 at 17.58.59.jpeg" alt="Velocity Elite" loading="lazy" />
+                <span class="quad-rating-pill">★ 5.0</span>
+              </div>
+              <span class="quad-label">Velocity Elite</span>
+            </div>
+          </div>
+          <a href="#products" class="quad-footer-link" onclick="setSortFilter('rating')">
+            <span>View all top-rated models</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </article>
+
+        <!-- Quad Card 4: DV Express Nationwide Service -->
+        <article class="feature-quad-card quad-card-service">
+          <div class="quad-title-row">
+            <h3 class="quad-card-title">⚡ DV Express</h3>
+            <span class="quad-badge-express">Nationwide</span>
+          </div>
+          <div class="service-quad-list">
+            <div class="service-quad-item">
+              <div class="service-quad-icon">🚀</div>
+              <div>
+                <strong>Lagos & Abuja 24h</strong>
+                <p>Express dispatch to your doorstep</p>
+              </div>
+            </div>
+            <div class="service-quad-item">
+              <div class="service-quad-icon">🛡️</div>
+              <div>
+                <strong>Inspected Quality</strong>
+                <p>Triple inspection before packing</p>
+              </div>
+            </div>
+            <div class="service-quad-item">
+              <div class="service-quad-icon">🔄</div>
+              <div>
+                <strong>7-Day Size Swaps</strong>
+                <p>Hassle-free exchange if size differs</p>
+              </div>
+            </div>
+            <div class="service-quad-item">
+              <div class="service-quad-icon">💬</div>
+              <div>
+                <strong>WhatsApp Order</strong>
+                <p>Instant invoice & order confirmation</p>
+              </div>
+            </div>
+          </div>
+          <a href="https://wa.me/2348000000000?text=Hello%20DV%20Ventures,%20I%20would%20like%20to%20place%20an%20order" target="_blank" rel="noopener" class="quad-footer-link whatsapp-link">
+            <span>Chat sales on WhatsApp</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </article>
+      </section>
+
+      <!-- AMAZON-STYLE SMOOTH HORIZONTAL PRODUCT CAROUSEL -->
+      <section class="horizontal-carousel-section" id="trendingSection" aria-label="Trending Footwear Rail">
+        <div class="carousel-header">
+          <div class="carousel-title-group">
+            <span class="eyebrow">Top Recommendations</span>
+            <h2>Trending Deals & Most Popular Footwear</h2>
+            <p>High-demand performance runners and urban lifestyle sneakers moving fast today</p>
+          </div>
+          <!-- Floating / Action Navigation Arrows -->
+          <div class="carousel-controls" aria-label="Carousel navigation">
+            <button id="carouselPrevBtn" class="carousel-nav-btn" type="button" aria-label="Previous products" title="Scroll left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button id="carouselNextBtn" class="carousel-nav-btn" type="button" aria-label="Next products" title="Scroll right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Carousel Track with Native Smooth Snap Scrolling -->
+        <div class="carousel-track-wrap">
+          <div id="trendingCarouselTrack" class="carousel-track" tabindex="0" role="region" aria-label="Trending products list">
+            <!-- Populated via script.js -->
+          </div>
         </div>
       </section>
 
@@ -779,6 +1012,85 @@
               <span>Instant WhatsApp Buy</span>
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELIVERY LOCATION SELECTOR MODAL (Amazon-Style Location Layer) -->
+    <div id="deliveryLocationModalBackdrop" class="modal-backdrop" aria-hidden="true">
+      <div class="location-modal-card" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
+        <button id="closeLocationModal" class="modal-close" type="button" aria-label="Close location selector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="location-modal-header">
+          <div class="location-modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <h3 id="locationModalTitle">Choose your delivery destination</h3>
+          <p>Delivery options and shipping speeds vary based on your state in Nigeria.</p>
+        </div>
+
+        <div class="location-state-list">
+          <label class="location-state-option">
+            <input type="radio" name="stateSelection" value="lagos" checked />
+            <div class="state-option-info">
+              <strong>Lagos State</strong>
+              <span>Express Doorstep (24–48h) &bull; Standard ₦2,500 / Free over ₦50k</span>
+            </div>
+            <span class="state-tag">Fastest</span>
+          </label>
+
+          <label class="location-state-option">
+            <input type="radio" name="stateSelection" value="abuja" />
+            <div class="state-option-info">
+              <strong>Abuja (FCT)</strong>
+              <span>Priority Air & Road Dispatch (24–48h) &bull; Standard ₦4,000</span>
+            </div>
+            <span class="state-tag">Express</span>
+          </label>
+
+          <label class="location-state-option">
+            <input type="radio" name="stateSelection" value="rivers" />
+            <div class="state-option-info">
+              <strong>Rivers State (Port Harcourt)</strong>
+              <span>Direct Courier Dispatch (48–72h) &bull; Standard ₦4,500</span>
+            </div>
+          </label>
+
+          <label class="location-state-option">
+            <input type="radio" name="stateSelection" value="oyo" />
+            <div class="state-option-info">
+              <strong>Oyo State (Ibadan)</strong>
+              <span>Regional Hub Delivery (24–48h) &bull; Standard ₦3,500</span>
+            </div>
+          </label>
+
+          <label class="location-state-option">
+            <input type="radio" name="stateSelection" value="kano" />
+            <div class="state-option-info">
+              <strong>Kano & Northern Hubs</strong>
+              <span>Secure Priority Transport (48–72h) &bull; Standard ₦4,500</span>
+            </div>
+          </label>
+
+          <label class="location-state-option">
+            <input type="radio" name="stateSelection" value="other" />
+            <div class="state-option-info">
+              <strong>Other States Nationwide</strong>
+              <span>Inter-state Logistics Network (3–5 days) &bull; Standard ₦5,000</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="location-modal-footer">
+          <button id="saveLocationBtn" class="button button-primary full" type="button">Set Delivery Location</button>
         </div>
       </div>
     </div>

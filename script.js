@@ -329,11 +329,14 @@ function calculateCartTotals() {
   let deliveryFee = 0;
 
   const destinationSelect = document.getElementById('deliveryDestination');
-  const destination = destinationSelect ? destinationSelect.value : 'lagos';
+  const storedDestination = (typeof localStorage !== 'undefined' ? localStorage.getItem('dv-delivery-location') : null) || 'lagos';
+  const destination = destinationSelect ? destinationSelect.value : storedDestination;
 
   if (!isFreeDelivery && subtotal > 0) {
     if (destination === 'lagos') deliveryFee = 2500;
     else if (destination === 'abuja') deliveryFee = 4000;
+    else if (destination === 'oyo') deliveryFee = 3500;
+    else if (destination === 'rivers' || destination === 'kano') deliveryFee = 4500;
     else deliveryFee = 5000;
   }
 
@@ -860,6 +863,134 @@ function setCategoryFilter(category) {
     btn.classList.toggle('active', btn.dataset.category === category);
   });
   renderProducts();
+  const catalogEl = document.getElementById('products');
+  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+}
+
+function setPriceFilter(range) {
+  activePriceRange = range;
+  document.querySelectorAll('.price-chip').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.priceRange === range);
+  });
+  renderProducts();
+  const catalogEl = document.getElementById('products');
+  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+}
+
+function setSortFilter(sort) {
+  activeSort = sort;
+  const sortSelect = document.getElementById('sortSelect');
+  if (sortSelect) sortSelect.value = sort;
+  renderProducts();
+  const catalogEl = document.getElementById('products');
+  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==========================================================================
+// AMAZON-STYLE HORIZONTAL CAROUSEL ENGINE
+// ==========================================================================
+
+function renderTrendingCarousel() {
+  const track = document.getElementById('trendingCarouselTrack');
+  if (!track) return;
+
+  const trendingList = [...products].sort((a, b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, 6);
+
+  track.innerHTML = trendingList
+    .map((product) => {
+      const oldPriceFormatted = product.oldPrice
+        ? `<span class="carousel-old-price">${formatCurrency(product.oldPrice)}</span>`
+        : '';
+      return `
+        <article class="carousel-card" data-card-id="${product.id}">
+          <div class="carousel-img-wrap" onclick="openQuickView(${product.id})">
+            <img src="${product.image}" alt="${product.name}" loading="lazy" />
+          </div>
+          <div class="carousel-card-body">
+            <div class="carousel-meta-row">
+              <span class="carousel-prime-badge">⚡ DV Express</span>
+              <div class="carousel-rating">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span>${product.rating || '4.9'} (${product.reviews || '100'})</span>
+              </div>
+            </div>
+            <h4 onclick="openQuickView(${product.id})">${product.name}</h4>
+            <div class="carousel-price-row">
+              <span class="carousel-current-price">${formatCurrency(product.price)}</span>
+              ${oldPriceFormatted}
+            </div>
+            <span class="carousel-delivery-eta">Get it in 24–48 hours</span>
+            <button class="carousel-add-btn" type="button" onclick="addToCart(${product.id}, 42)">
+              <span>Add to Bag</span>
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+}
+
+// ==========================================================================
+// AMAZON-STYLE DELIVERY LOCATION SELECTOR ENGINE
+// ==========================================================================
+
+function updateDeliveryLocationUI() {
+  if (typeof localStorage === 'undefined' || typeof document === 'undefined') return;
+  const loc = localStorage.getItem('dv-delivery-location') || 'lagos';
+  const stateLabels = {
+    lagos: 'Lagos ▾',
+    abuja: 'Abuja ▾',
+    rivers: 'Port Harcourt ▾',
+    oyo: 'Ibadan ▾',
+    kano: 'Kano ▾',
+    other: 'Nationwide ▾'
+  };
+  const activeDeliveryState = document.getElementById('activeDeliveryState');
+  if (activeDeliveryState) {
+    activeDeliveryState.textContent = stateLabels[loc] || 'Lagos ▾';
+  }
+  const radio = document.querySelector(`input[name="stateSelection"][value="${loc}"]`);
+  if (radio) radio.checked = true;
+
+  const destinationSelect = document.getElementById('deliveryDestination');
+  if (destinationSelect) {
+    destinationSelect.value = loc;
+  }
+}
+
+function initDeliveryLocationModal() {
+  const locBtn = document.getElementById('deliveryLocationBtn');
+  const modalBackdrop = document.getElementById('deliveryLocationModalBackdrop');
+  const closeBtn = document.getElementById('closeLocationModal');
+  const saveBtn = document.getElementById('saveLocationBtn');
+
+  updateDeliveryLocationUI();
+
+  if (locBtn && modalBackdrop) {
+    locBtn.addEventListener('click', () => modalBackdrop.classList.add('open'));
+  }
+  if (closeBtn && modalBackdrop) {
+    closeBtn.addEventListener('click', () => modalBackdrop.classList.remove('open'));
+  }
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) modalBackdrop.classList.remove('open');
+    });
+  }
+  if (saveBtn && modalBackdrop) {
+    saveBtn.addEventListener('click', () => {
+      const selected = document.querySelector('input[name="stateSelection"]:checked');
+      if (selected) {
+        const val = selected.value;
+        localStorage.setItem('dv-delivery-location', val);
+        updateDeliveryLocationUI();
+        renderCart();
+        modalBackdrop.classList.remove('open');
+        const stateName = selected.closest('label').querySelector('strong').textContent;
+        showToast(`Delivery destination set to ${stateName}`);
+      }
+    });
+  }
 }
 
 // ==========================================================================
@@ -1251,10 +1382,12 @@ function renderAdminEditor() {
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Initial Renders
+  // 1. Initial Renders & Amazon-Style Layer Engines
   renderProducts();
+  renderTrendingCarousel();
   renderCart();
   updateWishlistUI();
+  initDeliveryLocationModal();
   initScrollReveals();
 
   // 2. Navbar Scroll Shadow
@@ -1265,11 +1398,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Search Shortcut ('/')
+  // 3. Search Shortcut ('/') & Search Scrim Focus Layer
+  const searchInput = document.getElementById('searchInput');
+  const searchScrim = document.getElementById('searchScrim');
+
+  if (searchInput && searchScrim) {
+    searchInput.addEventListener('focus', () => searchScrim.classList.add('active'));
+    searchInput.addEventListener('blur', () => {
+      setTimeout(() => searchScrim.classList.remove('active'), 220);
+    });
+    searchScrim.addEventListener('click', () => {
+      searchScrim.classList.remove('active');
+      searchInput.blur();
+    });
+  }
+
   window.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
       e.preventDefault();
-      const searchInput = document.getElementById('searchInput');
       if (searchInput) {
         searchInput.focus();
         searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1277,9 +1423,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const searchInput = document.getElementById('searchInput');
   if (searchInput) {
     searchInput.addEventListener('input', renderProducts);
+  }
+
+  // 3b. Amazon-Style Horizontal Carousel Navigation Controls
+  const carouselPrevBtn = document.getElementById('carouselPrevBtn');
+  const carouselNextBtn = document.getElementById('carouselNextBtn');
+  const carouselTrack = document.getElementById('trendingCarouselTrack');
+
+  if (carouselPrevBtn && carouselTrack) {
+    carouselPrevBtn.addEventListener('click', () => {
+      carouselTrack.scrollBy({ left: -270, behavior: 'smooth' });
+    });
+  }
+  if (carouselNextBtn && carouselTrack) {
+    carouselNextBtn.addEventListener('click', () => {
+      carouselTrack.scrollBy({ left: 270, behavior: 'smooth' });
+    });
   }
 
   // 4. Category Chips
