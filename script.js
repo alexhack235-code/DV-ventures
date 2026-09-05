@@ -192,6 +192,13 @@ function formatCurrency(value) {
   }).format(value);
 }
 
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>'"]/g, 
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
+}
+
 function persistCart() {
   localStorage.setItem('dv-cart', JSON.stringify(cart));
 }
@@ -377,6 +384,7 @@ function addToCart(id, size = 42, quantity = 1) {
   persistCart();
   renderCart();
   openCartDrawer();
+  addToRecentlyViewed(id);
   showToast(`Added ${product.name} (EU ${chosenSize}) to your bag`);
 }
 
@@ -442,6 +450,45 @@ function renderCart() {
       const pct = Math.min(100, Math.round((totals.subtotal / FREE_SHIPPING_THRESHOLD) * 100));
       shippingText.innerHTML = `Add <strong>${formatCurrency(remaining)}</strong> more for FREE delivery`;
       shippingFill.style.width = `${pct}%`;
+    }
+  }
+
+  // Smart Free-Shipping Upsell Card
+  const upsellBox = document.getElementById('cartUpsellBox');
+  if (upsellBox) {
+    if (totals.subtotal > 0 && totals.subtotal < FREE_SHIPPING_THRESHOLD) {
+      const remaining = FREE_SHIPPING_THRESHOLD - totals.subtotal;
+      const cartIds = new Set(cart.map((item) => item.id));
+      const candidate = products.find((p) => !cartIds.has(p.id)) || products[0];
+      if (candidate) {
+        upsellBox.style.display = 'flex';
+        upsellBox.innerHTML = `
+          <div class="upsell-content">
+            <img src="${candidate.image}" alt="${candidate.name}" class="upsell-thumb" />
+            <div class="upsell-text">
+              <strong>Add ${candidate.name}</strong>
+              <span>${formatCurrency(candidate.price)} &bull; ${formatCurrency(remaining)} away from FREE delivery</span>
+            </div>
+          </div>
+          <button type="button" class="upsell-add-btn" data-upsell-add="${candidate.id}">+ Add</button>
+        `;
+        const addBtn = upsellBox.querySelector('[data-upsell-add]');
+        if (addBtn) {
+          addBtn.addEventListener('click', () => {
+            addToCart(Number(addBtn.dataset.upsellAdd), 42, 1);
+          });
+        }
+      }
+    } else if (totals.subtotal >= FREE_SHIPPING_THRESHOLD && cart.length > 0) {
+      upsellBox.style.display = 'block';
+      upsellBox.innerHTML = `
+        <div class="upsell-unlocked-banner">
+          🎉 <strong>Free Delivery Unlocked!</strong> You qualify for 100% free nationwide delivery.
+        </div>
+      `;
+    } else {
+      upsellBox.style.display = 'none';
+      upsellBox.innerHTML = '';
     }
   }
 
@@ -761,10 +808,14 @@ function renderProducts() {
             <h3 class="product-title" onclick="openQuickView(${product.id})">${product.name}</h3>
             <p class="product-detail">${product.detail}</p>
 
-            <div class="product-sizes-preview">
-              <span>Sizes:</span>
-              ${sizeList.slice(0, 4).map((s) => `<span class="size-preview-chip">${s}</span>`).join('')}
-              ${sizeList.length > 4 ? `<span class="size-preview-chip">+${sizeList.length - 4}</span>` : ''}
+            <!-- Interactive On-Card Size Selector -->
+            <div class="card-size-selector" data-card-product="${product.id}">
+              <span class="card-size-label">EU:</span>
+              ${sizeList.map((s) => `
+                <button type="button" class="card-size-pill ${s === 42 ? 'selected' : ''}" data-size-val="${s}">
+                  ${s}
+                </button>
+              `).join('')}
             </div>
 
             <div class="product-foot">
@@ -776,7 +827,7 @@ function renderProducts() {
                 </div>
               </div>
 
-              <button class="add-cart-btn" type="button" onclick="addToCart(${product.id}, 42)">
+              <button class="add-cart-btn" type="button" data-add-card-id="${product.id}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -803,6 +854,31 @@ function renderProducts() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       openQuickView(Number(btn.dataset.quickviewId));
+    });
+  });
+
+  // On-card interactive size selector
+  const cardSelectedSizes = {};
+  document.querySelectorAll('.card-size-pill').forEach((pill) => {
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const parent = pill.closest('.card-size-selector');
+      if (!parent) return;
+      const prodId = Number(parent.dataset.cardProduct);
+      const chosenSize = Number(pill.dataset.sizeVal);
+      cardSelectedSizes[prodId] = chosenSize;
+      parent.querySelectorAll('.card-size-pill').forEach((p) => p.classList.remove('selected'));
+      pill.classList.add('selected');
+    });
+  });
+
+  // On-card direct Add to Cart click
+  document.querySelectorAll('[data-add-card-id]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = Number(btn.dataset.addCardId);
+      const chosenSize = cardSelectedSizes[id] || 42;
+      addToCart(id, chosenSize, 1);
     });
   });
 
@@ -894,7 +970,7 @@ function renderTrendingCarousel() {
   const track = document.getElementById('trendingCarouselTrack');
   if (!track) return;
 
-  const trendingList = [...products].sort((a, b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, 6);
+  const trendingList = [...products];
 
   track.innerHTML = trendingList
     .map((product) => {
@@ -1000,6 +1076,8 @@ function initDeliveryLocationModal() {
 function openQuickView(productId) {
   const product = products.find((p) => p.id === productId);
   if (!product) return;
+
+  addToRecentlyViewed(productId);
 
   currentQuickViewProduct = product;
   currentQuickViewSize = 42;
@@ -1378,6 +1456,322 @@ function renderAdminEditor() {
 }
 
 // ==========================================================================
+// RECENTLY VIEWED LOGIC
+// ==========================================================================
+
+function addToRecentlyViewed(productId) {
+  if (!productId) return;
+  try {
+    let recent = JSON.parse(localStorage.getItem('dv-recently-viewed') || '[]');
+    recent = recent.filter((id) => id !== productId);
+    recent.unshift(productId);
+    if (recent.length > 10) recent = recent.slice(0, 10);
+    localStorage.setItem('dv-recently-viewed', JSON.stringify(recent));
+    renderRecentlyViewed();
+  } catch (e) {
+    console.error('Error saving recently viewed footwear:', e);
+  }
+}
+
+function renderRecentlyViewed() {
+  const section = document.getElementById('recentlyViewedSection');
+  const track = document.getElementById('recentlyViewedTrack');
+  if (!section || !track) return;
+
+  let recentIds = [];
+  try {
+    recentIds = JSON.parse(localStorage.getItem('dv-recently-viewed') || '[]');
+  } catch (e) {
+    recentIds = [];
+  }
+
+  const recentProducts = recentIds
+    .map((id) => products.find((p) => p.id === id))
+    .filter(Boolean);
+
+  if (!recentProducts.length) {
+    section.classList.add('hidden');
+    track.innerHTML = '';
+    return;
+  }
+
+  section.classList.remove('hidden');
+  track.innerHTML = recentProducts
+    .map(
+      (product) => `
+        <div class="recent-card" data-recent-id="${product.id}">
+          <img src="${product.image}" alt="${escapeHTML(product.name)}" class="recent-card-img" data-qv-id="${product.id}" />
+          <div class="recent-card-info">
+            <div class="recent-card-title" data-qv-id="${product.id}" title="${escapeHTML(product.name)}">${escapeHTML(product.name)}</div>
+            <div class="recent-card-price">${formatCurrency(product.price)}</div>
+          </div>
+          <button type="button" class="recent-card-btn" data-recent-add="${product.id}">+ Quick Add</button>
+        </div>
+      `
+    )
+    .join('');
+
+  track.querySelectorAll('[data-qv-id]').forEach((el) => {
+    el.addEventListener('click', () => {
+      openQuickView(Number(el.dataset.qvId));
+    });
+  });
+
+  track.querySelectorAll('[data-recent-add]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      addToCart(Number(btn.dataset.recentAdd), 42, 1);
+    });
+  });
+
+  const clearBtn = document.getElementById('clearRecentlyViewedBtn');
+  if (clearBtn) {
+    clearBtn.onclick = () => {
+      localStorage.removeItem('dv-recently-viewed');
+      renderRecentlyViewed();
+      showToast('Browsing history cleared');
+    };
+  }
+}
+
+// ==========================================================================
+// LIVE INSTANT SEARCH AUTOCOMPLETE FLYOUT
+// ==========================================================================
+
+function initSearchFlyout() {
+  const searchInput = document.getElementById('searchInput');
+  const searchFlyout = document.getElementById('searchFlyout');
+  const searchScrim = document.getElementById('searchScrim');
+  if (!searchInput || !searchFlyout) return;
+
+  const closeFlyout = () => {
+    searchFlyout.classList.remove('open');
+    searchFlyout.setAttribute('aria-expanded', 'false');
+    if (searchScrim) searchScrim.classList.remove('active');
+  };
+
+  const renderFlyoutContent = () => {
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (!query) {
+      searchFlyout.innerHTML = `
+        <div class="flyout-heading">
+          <span>Trending Searches</span>
+        </div>
+        <div class="flyout-chips">
+          <button type="button" class="flyout-chip" data-chip="Air Max">Air Max</button>
+          <button type="button" class="flyout-chip" data-chip="Running">Running Shoes</button>
+          <button type="button" class="flyout-chip" data-chip="Slides">Slides & Sandals</button>
+          <button type="button" class="flyout-chip" data-chip="Sneakers">Sneakers</button>
+          <button type="button" class="flyout-chip" data-chip="Lifestyle">Lifestyle</button>
+          <button type="button" class="flyout-chip" data-chip="Under 25k">Under ₦25k</button>
+        </div>
+        <div class="flyout-heading" style="margin-top: 10px;">
+          <span>Popular Styles Right Now</span>
+        </div>
+        <div class="flyout-list">
+          ${products.slice(0, 3).map((p) => `
+            <div class="flyout-item" data-flyout-id="${p.id}">
+              <img src="${p.image}" alt="${escapeHTML(p.name)}" class="flyout-thumb" />
+              <div class="flyout-info">
+                <span class="flyout-name">${escapeHTML(p.name)}</span>
+                <span class="flyout-sub">${p.category} &bull; EU 40-45</span>
+                <span class="flyout-price">${formatCurrency(p.price)}</span>
+              </div>
+              <button type="button" class="flyout-add-btn" data-flyout-add="${p.id}">+ Add</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      const matches = products.filter((p) => {
+        return (
+          p.name.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query) ||
+          (p.detail && p.detail.toLowerCase().includes(query)) ||
+          (p.tag && p.tag.toLowerCase().includes(query))
+        );
+      });
+
+      if (!matches.length) {
+        searchFlyout.innerHTML = `
+          <div style="padding: 14px 8px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+            No footwear found matching "<strong>${escapeHTML(query)}</strong>".<br />
+            <small style="display:inline-block; margin-top: 6px;">Try "Running", "Sneakers", "Slides", or tap a trending filter.</small>
+          </div>
+        `;
+      } else {
+        searchFlyout.innerHTML = `
+          <div class="flyout-heading">
+            <span>Found ${matches.length} matching shoe${matches.length === 1 ? '' : 's'}</span>
+          </div>
+          <div class="flyout-list">
+            ${matches.slice(0, 4).map((p) => `
+              <div class="flyout-item" data-flyout-id="${p.id}">
+                <img src="${p.image}" alt="${escapeHTML(p.name)}" class="flyout-thumb" />
+                <div class="flyout-info">
+                  <span class="flyout-name">${escapeHTML(p.name)}</span>
+                  <span class="flyout-sub">${p.category} &bull; ${p.tag || 'In Stock'}</span>
+                  <span class="flyout-price">${formatCurrency(p.price)}</span>
+                </div>
+                <button type="button" class="flyout-add-btn" data-flyout-add="${p.id}">+ Add</button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    searchFlyout.querySelectorAll('.flyout-chip').forEach((chip) => {
+      chip.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const val = chip.dataset.chip;
+        if (val === 'Under 25k') {
+          setPriceFilter('under-25k');
+        } else if (['Running', 'Sneakers', 'Lifestyle', 'Slides'].includes(val)) {
+          setCategoryFilter(val === 'Slides' ? 'Sandals' : val);
+        } else {
+          searchInput.value = val;
+          renderProducts();
+        }
+        closeFlyout();
+      });
+    });
+
+    searchFlyout.querySelectorAll('.flyout-item').forEach((item) => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('[data-flyout-add]')) return;
+        openQuickView(Number(item.dataset.flyoutId));
+        closeFlyout();
+      });
+    });
+
+    searchFlyout.querySelectorAll('[data-flyout-add]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        addToCart(Number(btn.dataset.flyoutAdd), 42, 1);
+      });
+    });
+
+    searchFlyout.classList.add('open');
+    searchFlyout.setAttribute('aria-expanded', 'true');
+    if (searchScrim) searchScrim.classList.add('active');
+  };
+
+  searchInput.addEventListener('focus', renderFlyoutContent);
+  searchInput.addEventListener('input', renderFlyoutContent);
+
+  searchFlyout.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !searchFlyout.contains(e.target)) {
+      closeFlyout();
+    }
+  });
+
+  if (searchScrim) {
+    searchScrim.addEventListener('click', closeFlyout);
+  }
+}
+
+// ==========================================================================
+// SIZE GUIDE MODAL LOGIC
+// ==========================================================================
+
+function initSizeGuideModal() {
+  const backdrop = document.getElementById('sizeGuideModalBackdrop');
+  const openBtn = document.getElementById('openSizeGuideBtn');
+  const qvLink = document.getElementById('qvSizeGuideLink');
+  const closeBtn = document.getElementById('closeSizeGuideModal');
+  const closeBtn2 = document.getElementById('closeSizeGuideBtn2');
+
+  const openModal = () => {
+    if (backdrop) {
+      backdrop.classList.add('open');
+      backdrop.setAttribute('aria-hidden', 'false');
+    }
+  };
+
+  const closeModal = () => {
+    if (backdrop) {
+      backdrop.classList.remove('open');
+      backdrop.setAttribute('aria-hidden', 'true');
+    }
+  };
+
+  if (openBtn) openBtn.addEventListener('click', openModal);
+  if (qvLink) qvLink.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+  }
+}
+
+// ==========================================================================
+// FLOATING BACK TO TOP BUTTON LOGIC
+// ==========================================================================
+
+function initBackToTop() {
+  const btn = document.getElementById('backToTopBtn');
+  if (!btn) return;
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (window.scrollY > 450) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    },
+    { passive: true }
+  );
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// ==========================================================================
+// UNIVERSAL KEYBOARD SHORTCUTS & ESCAPE DISMISSAL
+// ==========================================================================
+
+function initUniversalKeyboardShortcuts() {
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeQuickViewModal();
+      const sizeGuide = document.getElementById('sizeGuideModalBackdrop');
+      if (sizeGuide) {
+        sizeGuide.classList.remove('open');
+        sizeGuide.setAttribute('aria-hidden', 'true');
+      }
+      closeCartDrawer();
+      const searchFlyout = document.getElementById('searchFlyout');
+      if (searchFlyout) {
+        searchFlyout.classList.remove('open');
+        searchFlyout.setAttribute('aria-expanded', 'false');
+      }
+      const searchScrim = document.getElementById('searchScrim');
+      if (searchScrim) searchScrim.classList.remove('active');
+      const chatBox = document.getElementById('chatBox');
+      if (chatBox) chatBox.classList.add('hidden');
+      const checkoutModal = document.getElementById('checkoutModalBackdrop');
+      if (checkoutModal) checkoutModal.classList.remove('open');
+      const addProductModal = document.getElementById('addProductModalBackdrop');
+      if (addProductModal) addProductModal.classList.remove('open');
+      const locationModal = document.getElementById('deliveryLocationModalBackdrop');
+      if (locationModal) locationModal.classList.remove('open');
+    }
+  });
+}
+
+// ==========================================================================
 // INITIALIZATION & EVENT LISTENERS
 // ==========================================================================
 
@@ -1386,9 +1780,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProducts();
   renderTrendingCarousel();
   renderCart();
+  renderRecentlyViewed();
   updateWishlistUI();
   initDeliveryLocationModal();
   initScrollReveals();
+  initSearchFlyout();
+  initSizeGuideModal();
+  initBackToTop();
+  initUniversalKeyboardShortcuts();
 
   // 2. Navbar Scroll Shadow
   const header = document.getElementById('siteHeader');
@@ -1434,12 +1833,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (carouselPrevBtn && carouselTrack) {
     carouselPrevBtn.addEventListener('click', () => {
-      carouselTrack.scrollBy({ left: -270, behavior: 'smooth' });
+      const scrollDist = Math.max(300, Math.round(carouselTrack.clientWidth * 0.75));
+      carouselTrack.scrollBy({ left: -scrollDist, behavior: 'smooth' });
     });
   }
   if (carouselNextBtn && carouselTrack) {
     carouselNextBtn.addEventListener('click', () => {
-      carouselTrack.scrollBy({ left: 270, behavior: 'smooth' });
+      const scrollDist = Math.max(300, Math.round(carouselTrack.clientWidth * 0.75));
+      carouselTrack.scrollBy({ left: scrollDist, behavior: 'smooth' });
     });
   }
 

@@ -59,6 +59,8 @@
             autocomplete="off"
           />
           <span class="search-shortcut" title="Press / to search">/</span>
+          <!-- Live Instant Search Autocomplete Flyout -->
+          <div id="searchFlyout" class="search-flyout" aria-expanded="false"></div>
         </div>
 
         <!-- Navigation & Actions -->
@@ -135,6 +137,7 @@
           <a href="#products" onclick="setCategoryFilter('Lifestyle')">Lifestyle</a>
           <a href="#products" onclick="setCategoryFilter('Sandals')">Slides</a>
           <a href="#products" onclick="setPriceFilter('under-25k')">Under ₦25,000</a>
+          <button id="openSizeGuideBtn" class="subnav-size-btn" type="button">📏 Size Guide</button>
           <a href="#pricing">Bulk Orders</a>
           <a href="https://wa.me/2348000000000?text=Hi%20DV%20Ventures,%20I%20need%20help%20with%20an%20order" target="_blank" rel="noopener">Customer Service</a>
         </div>
@@ -820,6 +823,22 @@
           </details>
         </div>
       </section>
+
+      <!-- RECENTLY VIEWED FOOTWEAR (Inspired by Your Browsing) -->
+      <section id="recentlyViewedSection" class="recently-viewed-section hidden" aria-label="Recently viewed footwear">
+        <div class="recently-viewed-header">
+          <div>
+            <span class="eyebrow">Your Browsing History</span>
+            <h3>Recently Viewed Shoes</h3>
+          </div>
+          <button id="clearRecentlyViewedBtn" class="clear-recent-btn" type="button">Clear history</button>
+        </div>
+        <div class="recently-viewed-track-wrap">
+          <div id="recentlyViewedTrack" class="recently-viewed-track">
+            <!-- Populated via script.js -->
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- FOOTER -->
@@ -902,6 +921,9 @@
         </div>
       </div>
 
+      <!-- Smart Free-Shipping Upsell Card -->
+      <div id="cartUpsellBox" class="cart-upsell-box"></div>
+
       <!-- Item List Container -->
       <div id="cartItems" class="cart-items"></div>
 
@@ -972,10 +994,13 @@
 
           <!-- Interactive Size Selector -->
           <div class="size-selector-wrap">
-            <h5>
-              <span>Select Shoe Size (EU)</span>
-              <small>Standard Fit</small>
-            </h5>
+            <div class="size-selector-header">
+              <h5>
+                <span>Select Shoe Size (EU)</span>
+                <small>Standard Fit</small>
+              </h5>
+              <button id="qvSizeGuideLink" class="size-guide-inline-btn" type="button">📏 Size Guide</button>
+            </div>
             <div id="qvSizeGrid" class="size-grid">
               <button class="size-btn active" type="button" data-size="40">40</button>
               <button class="size-btn" type="button" data-size="41">41</button>
@@ -1095,6 +1120,112 @@
       </div>
     </div>
 
+    <!-- SHOE SIZE GUIDE & FIT ADVISOR MODAL -->
+    <div id="sizeGuideModalBackdrop" class="modal-backdrop" aria-hidden="true">
+      <div class="size-guide-modal-card" role="dialog" aria-modal="true" aria-labelledby="sizeGuideTitle">
+        <button id="closeSizeGuideModal" class="modal-close" type="button" aria-label="Close size guide">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="size-guide-header">
+          <div class="size-guide-icon">📏</div>
+          <h3 id="sizeGuideTitle">Footwear Size & Fit Guide</h3>
+          <p>Find your accurate Nigerian shoe size. All DV Ventures footwear is crafted in standard European (EU) sizing.</p>
+        </div>
+
+        <div class="size-table-container">
+          <table class="size-conversion-table">
+            <thead>
+              <tr>
+                <th>EU Size</th>
+                <th>UK Size</th>
+                <th>US Size</th>
+                <th>Foot Length (CM)</th>
+                <th>Fit Advice</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>40</strong></td>
+                <td>6.5</td>
+                <td>7.5</td>
+                <td>25.0 cm</td>
+                <td>Standard Fit</td>
+              </tr>
+              <tr>
+                <td><strong>41</strong></td>
+                <td>7.0</td>
+                <td>8.0</td>
+                <td>25.5 cm</td>
+                <td>Standard Fit</td>
+              </tr>
+              <tr class="highlight-size-row">
+                <td><strong>42</strong></td>
+                <td>8.0</td>
+                <td>9.0</td>
+                <td>26.5 cm</td>
+                <td>Most Popular Nigerian Size</td>
+              </tr>
+              <tr class="highlight-size-row">
+                <td><strong>43</strong></td>
+                <td>9.0</td>
+                <td>10.0</td>
+                <td>27.0 cm</td>
+                <td>Most Popular Nigerian Size</td>
+              </tr>
+              <tr>
+                <td><strong>44</strong></td>
+                <td>10.0</td>
+                <td>11.0</td>
+                <td>28.0 cm</td>
+                <td>Wide Feet / Comfort Fit</td>
+              </tr>
+              <tr>
+                <td><strong>45</strong></td>
+                <td>11.0</td>
+                <td>12.0</td>
+                <td>28.5 cm</td>
+                <td>Extra Volume & Length</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="size-measure-guide">
+          <h4>How to Measure Your Foot at Home</h4>
+          <div class="measure-steps-grid">
+            <div class="measure-step">
+              <span class="step-num">1</span>
+              <p>Place a paper sheet on the floor against a flat wall.</p>
+            </div>
+            <div class="measure-step">
+              <span class="step-num">2</span>
+              <p>Stand on the sheet with your heel firmly touching the wall.</p>
+            </div>
+            <div class="measure-step">
+              <span class="step-num">3</span>
+              <p>Mark the tip of your longest toe and measure length in centimeters.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="size-guarantee-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <div>
+            <strong>100% Fit Guarantee</strong>
+            <span>Not sure about your size? We provide a free 7-day size swap across Nigeria so you always get the perfect fit!</span>
+          </div>
+        </div>
+
+        <div class="size-guide-footer">
+          <button id="closeSizeGuideBtn2" class="button button-primary full" type="button">Got It, Ready to Shop</button>
+        </div>
+      </div>
+    </div>
+
     <!-- AI SHOPPING CONCIERGE WIDGET -->
     <div id="chatWidget" class="chat-widget" aria-live="polite">
       <button id="chatToggle" class="chat-toggle" type="button" aria-label="Open AI Shopping Concierge">
@@ -1180,6 +1311,12 @@
         </button>
       </div>
     </div>
+
+    <!-- FLOATING BACK TO TOP PILL -->
+    <button id="backToTopBtn" class="back-to-top-pill" type="button" aria-label="Scroll back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+      <span>Top</span>
+    </button>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
